@@ -15,7 +15,7 @@ st.divider()
     # Area caricamento file
 uploaded_file = st.file_uploader("Trascina qui il file di Aruba (PDF/Excel) o il file degli incassi", type=["pdf", "xlsx", "csv"])
     
-    if uploaded_file is not None:
+        if uploaded_file is not None:
         st.success("File caricato con successo!")
         
         # Mostra anteprima se è un file excel/csv
