@@ -13,7 +13,7 @@ api_key = st.secrets["GEMINI_API_KEY"]
 st.divider()
     
     # Area caricamento file
-    uploaded_file = st.file_uploader("Trascina qui il file di Aruba (PDF/Excel) o il file degli incassi", type=["pdf", "xlsx", "csv"])
+uploaded_file = st.file_uploader("Trascina qui il file di Aruba (PDF/Excel) o il file degli incassi", type=["pdf", "xlsx", "csv"])
     
     if uploaded_file is not None:
         st.success("File caricato con successo!")
