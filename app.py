@@ -8,15 +8,7 @@ st.set_page_config(page_title="Gestione Affittacamere IA", page_icon="🏡", lay
 st.title("🏡 Assistente Finanziario Affittacamere")
 st.markdown("Carica le fatture di Aruba o il foglio degli incassi per analizzare i conti, confrontare i dati e ricevere consigli strategici.")
 
-# Configurazione API Key
-# Puoi inserire la chiave qui sotto o caricarla dai secrets di streamlit
-api_key = st.sidebar.text_input("Inserisci la tua Google API Key", type="password")
-
-if not api_key:
-    st.warning("Per favore, inserisci la tua Google API Key nella barra laterale per attivare l'assistente.")
-    st.info("Puoi ottenerla gratuitamente su Google AI Studio.")
-else:
-    client = genai.Client(api_key=api_key)
+api_key = st.secrets["GEMINI_API_KEY"]
     
     st.divider()
     
