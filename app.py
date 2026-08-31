@@ -10,7 +10,7 @@ st.markdown("Carica le fatture di Aruba o il foglio degli incassi per analizzare
 
 api_key = st.secrets["GEMINI_API_KEY"]
     
-    st.divider()
+st.divider()
     
     # Area caricamento file
     uploaded_file = st.file_uploader("Trascina qui il file di Aruba (PDF/Excel) o il file degli incassi", type=["pdf", "xlsx", "csv"])
