@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI
+from google import genai
 
 # Configurazione della pagina Streamlit
 st.set_page_config(page_title="Gestione Affittacamere IA", layout="wide")
@@ -7,11 +7,11 @@ st.set_page_config(page_title="Gestione Affittacamere IA", layout="wide")
 st.title("Gestione Affittacamere - Assistente IA")
 st.write("Trascina qui le fatture (PDF/Excel) o i file degli incassi e chiedi informazioni all'assistente.")
 
-# Inizializzazione del client OpenAI usando i Secrets di Streamlit
+# Inizializzazione del client Gemini usando i Secrets di Streamlit
 try:
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 except Exception as e:
-    st.error("Errore di configurazione: inserisci la chiave 'OPENAI_API_KEY' nei Secrets di Streamlit Cloud.")
+    st.error("Errore di configurazione: inserisci la chiave 'GEMINI_API_KEY' nei Secrets di Streamlit Cloud.")
     st.stop()
 
 # Sezione caricamento file
@@ -45,23 +45,19 @@ if user_query:
         with st.chat_message("user"):
             st.markdown(user_query)
 
-        # Generiamo la risposta dell'IA con ChatGPT
+        # Generiamo la risposta dell'IA con Gemini
         with st.chat_message("assistant"):
             with st.spinner("L'assistente sta analizzando i documenti..."):
                 try:
                     file_names_str = ", ".join([f.name for f in uploaded_files])
+                    prompt_completo = f"L'utente ha caricato questi file: {file_names_str}. Domanda: {user_query}"
                     
-                    chat_completion = client.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[
-                            {
-                                "role": "user", 
-                                "content": f"L'utente ha caricato questi file: {file_names_str}. Domanda: {user_query}"
-                            }
-                        ]
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=prompt_completo
                     )
                     
-                    bot_reply = chat_completion.choices[0].message.content
+                    bot_reply = response.text
                     st.markdown(bot_reply)
                     st.session_state.messages.append({"role": "assistant", "content": bot_reply})
                     
