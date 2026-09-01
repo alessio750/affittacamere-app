@@ -32,48 +32,39 @@ if uploaded_files:
 
     user_query = st.text_area("Fai una domanda all'assistente sui dati caricati:", placeholder="Es. Qual è la spesa più alta di questo mese? Ci sono aumenti rispetto all'anno scorso?")
 
-    if st.button("Analizza con l'IA"):
-        if user_query:
-            with st.spinner("L'assistente sta analizzando i documenti..."):
-          try:
-        # Prepara la lista dei contenuti prendendo tutti i file caricati
-        contents = []
-        for uploaded_file in uploaded_files:
-            bytes_data = uploaded_file.getvalue()
-            contents.append(
-                types.Part.from_bytes(
-                    data=bytes_data,
-                    mime_type=uploaded_file.type,
+if st.button("Analizza con l'IA"):
+    if user_query:
+        with st.spinner("L'assistente sta analizzando i documenti..."):
+            try:
+                contents = []
+                for uploaded_file in uploaded_files:
+                    bytes_data = uploaded_file.getvalue()
+                    contents.append(
+                        types.Part.from_bytes(
+                            data=bytes_data,
+                            mime_type=uploaded_file.type,
+                        )
+                    )
+                
+                prompt = f"""
+                Sei l'assistente amministrativo e finanziario di un affittacamere.
+                Analizza i documenti allegati (fatture, costi o incassi) e rispondi alla seguente richiesta dell'utente:
+                
+                Richiesta: {user_query}
+                
+                Fai calcoli precisi, evidenzia anomalie nei costi (utenze, fornitori) e dai consigli pratici su come ottimizzare la gestione.
+                """
+                contents.append(prompt)
+
+                response = client.models.generate_content(
+                    model='gemini-2.0-flash',
+                    contents=contents
                 )
-            )
-        
-        # Aggiungi il prompt testuale alla fine dei file
-        prompt = f"""
-        Sei l'assistente amministrativo e finanziario di un affittacamere.
-        Analizza i documenti allegati (fatture, costi o incassi) e rispondi alla seguente richiesta dell'utente:
-        
-        Richiesta: {user_query}
-        
-        Fai calcoli precisi, evidenzia anomalie nei costi (utenze, fornitori) e dai consigli pratici su come ottimizzare la gestione.
-        """
-        contents.append(prompt)
+                
+                st.subheader("Risposta dell'Assistente:")
+                st.markdown(response.text)
 
-        # Chiamata all'IA con il client configurato e il modello corretto
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=contents
-        )
-        
-        st.subheader("Risposta dell'Assistente:")
-        st.markdown(response.text)
-
-    except Exception as e:
-        st.error(f"Si è verificato un errore durante l'analisi: {e}")
-
-                    st.subheader("Risposta dell'Assistente:")
-                    st.markdown(response.text)
-
-                except Exception as e:
-                    st.error(f"Si è verificato un errore durante l'analisi: {e}")
-        else:
-            st.warning("Scrivi prima una domanda per l'assistente.")
+            except Exception as e:
+                st.error(f"Si è verificato un errore durante l'analisi: {e}")
+    else:
+        st.warning("Scrivi prima una domanda per l'assistente."
