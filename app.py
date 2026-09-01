@@ -1,28 +1,23 @@
 import streamlit as st
 import pandas as pd
-import os
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
 st.set_page_config(page_title="Gestione Affittacamere IA", page_icon="🏠", layout="centered")
 
 st.title("🏠 Assistente Finanziario Affittacamere")
 st.markdown("Carica le fatture di Aruba o il foglio degli incassi per analizzare i conti, confrontare i dati e ricevere consigli strategici.")
 
+# Configurazione semplice e sicura con la libreria classica
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-
-api_key = st.secrets["GEMINI_API_KEY"]
-os.environ["GEMINI_API_KEY"] = api_key
-client = genai.Client()
 st.divider()
 
-# Area caricamento file
 # Area caricamento file multiplo
 uploaded_files = st.file_uploader("Trascina qui le fatture di Aruba (PDF/Excel) o i file degli incassi", type=["pdf", "xlsx", "csv"], accept_multiple_files=True)
 
 if uploaded_files:
     st.success(f"{len(uploaded_files)} file caricati con successo!")
-    
+
     # Mostra anteprima se tra i file c'è un file excel/csv
     for uploaded_file in uploaded_files:
         if uploaded_file.name.endswith(('.xlsx', '.csv')):
@@ -33,22 +28,22 @@ if uploaded_files:
             except Exception as e:
                 pass
 
-    user_query = st.text_area("Fai una domanda all'assistente sui dati caricati:", placeholder="Es. Qual è la spesa più alta di questo mese? Ci sono aumenti rispetto all'anno scorso?")
+user_query = st.text_area("Fai una domanda all'assistente sui dati caricati:", placeholder="Es. Qual è la spesa più alta di questo mese? Ci sono aumenti rispetto all'anno scorso?")
 
 if st.button("Analizza con l'IA"):
     if user_query:
         with st.spinner("L'assistente sta analizzando i documenti..."):
             try:
+                # Prepara i file nel formato supportato dalla libreria classica
                 contents = []
                 for uploaded_file in uploaded_files:
                     bytes_data = uploaded_file.getvalue()
-                    contents.append(
-                        types.Part.from_bytes(
-                            data=bytes_data,
-                            mime_type=uploaded_file.type,
-                        )
-                    )
+                    contents.append({
+                        'mime_type': uploaded_file.type,
+                        'data': bytes_data
+                    })
                 
+                # Aggiungi il prompt testuale alla fine
                 prompt = f"""
                 Sei l'assistente amministrativo e finanziario di un affittacamere.
                 Analizza i documenti allegati (fatture, costi o incassi) e rispondi alla seguente richiesta dell'utente:
@@ -59,10 +54,9 @@ if st.button("Analizza con l'IA"):
                 """
                 contents.append(prompt)
 
-                response = client.models.generate_content(
-                    model='gemini-2.0-flash',
-                    contents=contents
-                )
+                # Chiamata pulita con il modello flash
+                model = genai.GenerativeModel('gemini-2.0-flash')
+                response = model.generate_content(contents)
                 
                 st.subheader("Risposta dell'Assistente:")
                 st.markdown(response.text)
