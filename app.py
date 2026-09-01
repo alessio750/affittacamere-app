@@ -54,7 +54,7 @@ if user_query:
             with st.spinner("L'assistente sta analizzando i documenti..."):
                 try:
                     # Inizializziamo il modello
-                    model = genai.GenerativeModel('models/gemini-1.5-flash')
+                    model = genai.GenerativeModel('models/gemini-2.5-flash')
                     
                     # Prepariamo la lista dei file da inviare all'IA
                     file_parts = []
