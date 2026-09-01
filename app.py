@@ -13,19 +13,21 @@ api_key = st.secrets["GEMINI_API_KEY"]
 st.divider()
 
 # Area caricamento file
-uploaded_file = st.file_uploader("Trascina qui il file di Aruba (PDF/Excel) o il file degli incassi", type=["pdf", "xlsx", "csv"])
+# Area caricamento file multiplo
+uploaded_files = st.file_uploader("Trascina qui le fatture di Aruba (PDF/Excel) o i file degli incassi", type=["pdf", "xlsx", "csv"], accept_multiple_files=True)
 
-if uploaded_file is not None:
-    st.success("File caricato con successo!")
-
-    # Mostra anteprima se è un file excel/csv
-    if uploaded_file.name.endswith(('.xlsx', '.csv')):
-        try:
-            df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith('.csv') else pd.read_excel(uploaded_file)
-            st.write("Anteprima dati:")
-            st.dataframe(df.head())
-        except Exception as e:
-            pass
+if uploaded_files:
+    st.success(f"{len(uploaded_files)} file caricati con successo!")
+    
+    # Mostra anteprima se tra i file c'è un file excel/csv
+    for uploaded_file in uploaded_files:
+        if uploaded_file.name.endswith(('.xlsx', '.csv')):
+            try:
+                df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith('.csv') else pd.read_excel(uploaded_file)
+                st.write(f"Anteprima dati ({uploaded_file.name}):")
+                st.dataframe(df.head())
+            except Exception as e:
+                pass
 
     user_query = st.text_area("Fai una domanda all'assistente sui dati caricati:", placeholder="Es. Qual è la spesa più alta di questo mese? Ci sono aumenti rispetto all'anno scorso?")
 
