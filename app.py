@@ -54,15 +54,7 @@ if user_query:
             with st.spinner("L'assistente sta analizzando i documenti..."):
                try:
                 file_names = ", ".join([f.name for f in uploaded_files])
-                chat_completion = client.chat.completions.create(
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": f"L'utente ha caricato questi file: {file_names}. Domanda dell'utente: {user_query}",
-                        }
-                    ]
-                    model="llama-3.3-70b-versatile",
-                )
+                chat_completion = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": f"L'utente ha caricato questi file: {file_names}. Domanda dell'utente: {user_query}"}])
                 bot_reply = chat_completion.choices[0].message.content
                 st.markdown(bot_reply)
                 st.session_state.messages.append({"role": "assistant", "content": bot_reply})
