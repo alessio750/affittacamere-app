@@ -1,60 +1,76 @@
 import streamlit as st
-import pandas as pd
 import google.generativeai as genai
 
 # Configurazione della pagina
-st.set_page_config(page_title="Gestione Affittacamere IA", page_icon="🏠", layout="centered")
+st.set_page_config(page_title="Assistente Fatture IA", page_icon="📄", layout="centered")
 
-st.title("🏠 Assistente Finanziario Affittacamere")
-st.markdown("Carica le fatture o il foglio degli incassi per analizzare i conti, confrontare i dati e ricevere consigli strategici.")
+st.title("📄 Assistente Analisi Fatture")
+st.write("Carica le tue fatture o i file degli incassi e chiedi qualsiasi cosa all'IA.")
 
-# Configurazione sicura della chiave API con la libreria classica
-try:
+# Configurazione della chiave API segreta da Streamlit Secrets
+if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-except Exception as e:
+else:
     st.error("Errore di configurazione: controlla che la GEMINI_API_KEY sia impostata correttamente nei Secrets di Streamlit.")
 
 st.divider()
 
+# 1. MEMORIA DELLA CHAT: Inizializziamo lo storico dei messaggi se non esiste
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# 2. MOSTRHIAMO LA CRONOLOGIA: Ridisegniamo tutti i messaggi precedenti sullo schermo
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
 # Area caricamento file multiplo
-uploaded_files = st.file_uploader("Trascina qui le fatture (PDF/Excel) o i file degli incassi", type=["pdf", "xlsx", "csv"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Trascina qui le fatture (PDF/Excel) o i file degli incassi", type=["pdf", "xlsx", "xls"], accept_multiple_files=True)
 
 if uploaded_files:
     st.success(f"{len(uploaded_files)} file caricati con successo!")
 
-# Casella di testo per la domanda dell'utente
-user_query = st.text_area("Fai una domanda all'assistente sui dati caricati:", placeholder="Es. Qual è la spesa più alta di questo mese?")
+# Casella di testo per la domanda dell'utente (usiamo st.chat_input per un look da chat perfetto)
+user_query = st.chat_input("Fai una domanda all'assistente sui dati caricati...")
 
-# Pulsante di analisi
-if st.button("Analizza con l'IA"):
+if user_query:
     if not uploaded_files:
         st.warning("Per favore, carica prima almeno un file!")
-    elif not user_query.strip():
-        st.warning("Scrivi una domanda per l'assistente prima di avviare l'analisi.")
     else:
-     with st.spinner("L'assistente sta analizzando i documenti..."):
-        try:
-            # 1. Inizializziamo il modello stabile e sicuro
-            model = genai.GenerativeModel('gemini-3.6-flash')
-            
-            # 2. Prepariamo la lista dei file da inviare all'IA
-            file_parts = []
-            for uploaded_file in uploaded_files:
-                bytes_data = uploaded_file.getvalue()
-                file_parts.append({
-                    "mime_type": uploaded_file.type,
-                    "data": bytes_data
-                })
-            
-            # 3. Uniamo i file e la domanda dell'utente in un'unica richiesta
-            prompt_content = [user_query] + file_parts
-            
-            # 4. Inviamo tutto all'IA
-            response = model.generate_content(prompt_content)
-            
-            # 5. Mostriamo il risultato all'utente
-            st.subheader("Risposta dell'Assistente:")
-            st.write(response.text)
+        # Aggiungiamo subito la domanda dell'utente alla cronologia visibile
+        st.session_state.messages.append({"role": "user", "content": user_query})
+        with st.chat_message("user"):
+            st.markdown(user_query)
 
-        except Exception as e:
-            st.error(f"Si è verificato un errore durante l'analisi con l'IA: {e}")
+        # Generiamo la risposta dell'IA
+        with st.chat_message("assistant"):
+            with st.spinner("L'assistente sta analizzando i documenti..."):
+                try:
+                    # Inizializziamo il modello
+                    model = genai.GenerativeModel('gemini-3.6-flash')
+                    
+                    # Prepariamo la lista dei file da inviare all'IA
+                    file_parts = []
+                    for uploaded_file in uploaded_files:
+                        bytes_data = uploaded_file.getvalue()
+                        file_parts.append({
+                            "mime_type": uploaded_file.type,
+                            "data": bytes_data
+                        })
+                    
+                    # Uniamo i file e la domanda in un'unica richiesta
+                    prompt_content = [user_query] + file_parts
+                    
+                    # Inviamo tutto all'IA
+                    response = model.generate_content(prompt_content)
+                    bot_reply = response.text
+                    
+                    # Mostriamo la risposta
+                    st.markdown(bot_reply)
+                    
+                    # Salviamo anche la risposta dell'assistente nella cronologia
+                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+
+                except Exception as e:
+                    error_message = f"Si è verificato un errore durante l'analisi con l'IA: {e}"
+                    st.error(error_message)
