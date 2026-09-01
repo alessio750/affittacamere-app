@@ -9,6 +9,7 @@ st.title("🏠 Assistente Finanziario Affittacamere")
 st.markdown("Carica le fatture di Aruba o il foglio degli incassi per analizzare i conti, confrontare i dati e ricevere consigli strategici.")
 
 api_key = st.secrets["GEMINI_API_KEY"]
+client = genai.Client(api_key=api_key)
 
 st.divider()
 
