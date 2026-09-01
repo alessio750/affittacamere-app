@@ -32,17 +32,29 @@ if st.button("Analizza con l'IA"):
     elif not user_query.strip():
         st.warning("Scrivi una domanda per l'assistente prima di avviare l'analisi.")
     else:
-        with st.spinner("L'assistente sta analizzando i documenti..."):
-            try:
-                # Inizializziamo il modello stabile e sicuro
-                model = genai.GenerativeModel('gemini-3.6-flash')
-                
-                # Inviamo la richiesta di base all'IA
-                response = model.generate_content(user_query)
-                
-                # Mostriamo il risultato all'utente
-                st.subheader("Risposta dell'Assistente:")
-                st.write(response.text)
-                
-            except Exception as e:
-                st.error(f"Si è verificato un errore durante l'analisi con l'IA: {e}")
+     with st.spinner("L'assistente sta analizzando i documenti..."):
+        try:
+            # 1. Inizializziamo il modello stabile e sicuro
+            model = genai.GenerativeModel('gemini-3.6-flash')
+            
+            # 2. Prepariamo la lista dei file da inviare all'IA
+            file_parts = []
+            for uploaded_file in uploaded_files:
+                bytes_data = uploaded_file.getvalue()
+                file_parts.append({
+                    "mime_type": uploaded_file.type,
+                    "data": bytes_data
+                })
+            
+            # 3. Uniamo i file e la domanda dell'utente in un'unica richiesta
+            prompt_content = [user_query] + file_parts
+            
+            # 4. Inviamo tutto all'IA
+            response = model.generate_content(prompt_content)
+            
+            # 5. Mostriamo il risultato all'utente
+            st.subheader("Risposta dell'Assistente:")
+            st.write(response.text)
+
+        except Exception as e:
+            st.error(f"Si è verificato un errore durante l'analisi con l'IA: {e}")
