@@ -2,7 +2,7 @@ import streamlit as st
 from groq import Groq
 
 # Inizializziamo il client Groq prendendo la chiave dalle secrets di Streamlit
-client = Groq(api_key="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")
+client = Groq(api_key="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")
 
 st.set_page_config(page_title="Assistente Affittacamere", page_icon="🏠")
 
