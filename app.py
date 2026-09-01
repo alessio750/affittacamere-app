@@ -53,7 +53,7 @@ if user_query:
                     prompt_completo = f"L'utente ha caricato questi file: {file_names_str}. Domanda: {user_query}"
                     
                     response = client.models.generate_content(
-                        model='gemini-2.5-flash',
+                        model='gemini-3.6-flash',
                         contents=prompt_completo
                     )
                     
