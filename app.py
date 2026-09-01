@@ -53,14 +53,14 @@ if user_query:
         with st.chat_message("assistant"):
             with st.spinner("L'assistente sta analizzando i documenti..."):
                try:
-            file_names = ", ".join([f.name for f in uploaded_files])
-            chat_completion = client.chat.completions.create(
+                file_names = ", ".join([f.name for f in uploaded_files])
+                chat_completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[{"role": "user", "content": f"L'utente ha caricato questi file: {file_names}. Domanda dell'utente: {user_query}"}]
-            )
-            bot_reply = chat_completion.choices[0].message.content
-            st.markdown(bot_reply)
-            st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+                )
+                bot_reply = chat_completion.choices[0].message.content
+                st.markdown(bot_reply)
+                st.session_state.messages.append({"role": "assistant", "content": bot_reply})
         except Exception as e:
             error_message = f"Si è verificato un errore durante l'analisi con l'IA: {e}"
             st.error(error_message)
