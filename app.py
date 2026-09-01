@@ -4,7 +4,7 @@ import google.generativeai as genai
 # Configurazione della pagina
 st.set_page_config(page_title="Assistente virtuale affittacamere IA", page_icon="🏡​", layout="centered")
 
-st.title("📄 Assistente Analisi Fatture")
+st.title("🏡​ Assistente virtuale affittacamere IA")
 st.write("Carica le tue fatture o i file degli incassi e chiedi qualsiasi cosa all'IA.")
 
 # Configurazione della chiave API segreta da Streamlit Secrets
