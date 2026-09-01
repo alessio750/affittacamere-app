@@ -35,7 +35,7 @@ if st.button("Analizza con l'IA"):
         with st.spinner("L'assistente sta analizzando i documenti..."):
             try:
                 # Inizializziamo il modello stabile e sicuro
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                model = genai.GenerativeModel('gemini-2.5-flash')
                 
                 # Inviamo la richiesta di base all'IA
                 response = model.generate_content(user_query)
