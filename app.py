@@ -4,9 +4,16 @@ import google.generativeai as genai
 # Configurazione della pagina
 st.set_page_config(page_title="Assistente virtuale affittacamere IA", page_icon="🏡​", layout="centered")
 
-st.title("🏡​ Assistente virtuale affittacamere IA")
+st.markdown(
+    """
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 2.5em;">🏡</span>
+        <h1 style="margin: 0;">Assistente virtuale affittacamere IA</h1>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 st.write("Carica le tue fatture o i file degli incassi e chiedi qualsiasi cosa all'IA.")
-
 # Configurazione della chiave API segreta da Streamlit Secrets
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
