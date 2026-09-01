@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 from google import genai
 from google.genai import types
 
@@ -8,9 +9,11 @@ st.set_page_config(page_title="Gestione Affittacamere IA", page_icon="🏠", lay
 st.title("🏠 Assistente Finanziario Affittacamere")
 st.markdown("Carica le fatture di Aruba o il foglio degli incassi per analizzare i conti, confrontare i dati e ricevere consigli strategici.")
 
-api_key = st.secrets["GEMINI_API_KEY"]
-client = genai.Client(api_key=api_key)
 
+
+api_key = st.secrets["GEMINI_API_KEY"]
+os.environ["GEMINI_API_KEY"] = api_key
+client = genai.Client()
 st.divider()
 
 # Area caricamento file
