@@ -55,22 +55,22 @@ if user_query:
                 try:
                     # Inizializziamo il modello
                    # Prepariamo un testo con i nomi dei file caricati da mandare a Groq
-    file_names = ", ".join([f.name for f in uploaded_files])
-    
-    # Chiediamo la risposta a Groq usando il modello llama-3.3-70b-versatile
-    chat_completion = client.chat.completions.create(
+        file_names = ", ".join([f.name for f in uploaded_files])
+        
+        # Chiediamo la risposta a Groq usando il modello llama-3.3-70b-versatile
+        chat_completion = client.chat.completions.create(
         messages=[
-            {
-                "role": "user",
-                "content": f"L'utente ha caricato questi file: {file_names}. Domanda dell'utente: {user_query}",
-            }
+        {
+        "role": "user",
+        "content": f"L'utente ha caricato questi file: {file_names}. Domanda dell'utente: {user_query}",
+        }
         ]
         model="llama-3.3-70b-versatile",
-    )
-    bot_reply = chat_completion.choices[0].message.content
+        )
+        bot_reply = chat_completion.choices[0].message.content
 
-    # Mostriamo la risposta
-    st.markdown(bot_reply)
+        # Mostriamo la risposta
+        st.markdown(bot_reply)
                     
                     # Salviamo anche la risposta dell'assistente nella cronologia
                     st.session_state.messages.append({"role": "assistant", "content": bot_reply})
