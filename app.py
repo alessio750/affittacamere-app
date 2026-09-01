@@ -46,7 +46,7 @@ if user_query:
                 try:
                     file_names = ", ".join([f.name for f in uploaded_files])
                     chat_completion = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
+                        model="llama-3.1-8b-instant",
                         messages=[{"role": "user", "content": f"L'utente ha caricato questi file: {file_names}. Domanda dell'utente: {user_query}"}]
                     )
                     bot_reply = chat_completion.choices[0].message.content
