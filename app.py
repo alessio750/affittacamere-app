@@ -35,7 +35,7 @@ if uploaded_files:
     if st.button("Analizza con l'IA"):
         if user_query:
             with st.spinner("L'assistente sta analizzando i documenti..."):
-              try:
+          try:
         # Prepara la lista dei contenuti prendendo tutti i file caricati
         contents = []
         for uploaded_file in uploaded_files:
@@ -63,6 +63,12 @@ if uploaded_files:
             model='gemini-2.0-flash',
             contents=contents
         )
+        
+        st.subheader("Risposta dell'Assistente:")
+        st.markdown(response.text)
+
+    except Exception as e:
+        st.error(f"Si è verificato un errore durante l'analisi: {e}")
 
                     st.subheader("Risposta dell'Assistente:")
                     st.markdown(response.text)
