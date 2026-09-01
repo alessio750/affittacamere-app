@@ -1,35 +1,40 @@
 import streamlit as st
-from groq import Groq
+from openai import OpenAI
 
-# Inizializziamo il client Groq prendendo la chiave dalle secrets di Streamlit
-client = Groq(api_key="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")
+# Configurazione della pagina Streamlit
+st.set_page_config(page_title="Gestione Affittacamere IA", layout="wide")
 
-st.set_page_config(page_title="Assistente Affittacamere", page_icon="🏠")
+st.title("Gestione Affittacamere - Assistente IA")
+st.write("Trascina qui le fatture (PDF/Excel) o i file degli incassi e chiedi informazioni all'assistente.")
 
-st.title("🏠 Assistente Virtuale Affittacamere")
-st.write("Carica i documenti e fai domande all'intelligenza artificiale.")
+# Inizializzazione del client OpenAI usando i Secrets di Streamlit
+try:
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+except Exception as e:
+    st.error("Errore di configurazione: inserisci la chiave 'OPENAI_API_KEY' nei Secrets di Streamlit Cloud.")
+    st.stop()
 
-# Inizializziamo la cronologia della chat se non esiste
+# Sezione caricamento file
+uploaded_files = st.file_uploader(
+    "Trascina qui le fatture o i file degli incassi", 
+    accept_multiple_files=True, 
+    type=["pdf", "xlsx", "xls"]
+)
+
+if uploaded_files:
+    st.success(f"{len(file_names := [f.name for f in uploaded_files])} file caricati con successo!")
+
+# Inizializzazione della cronologia della chat nella sessione
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Mostriamo tutti i messaggi precedenti della chat
+# Mostriamo i messaggi precedenti della chat
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Caricamento file multiplo
-uploaded_files = st.file_uploader(
-    "Trascina qui le fatture (PDF/Excel) o i file degli incassi",
-    type=["pdf", "xlsx", "xls"],
-    accept_multiple_files=True
-)
-
-if uploaded_files:
-    st.success(f"{len(uploaded_files)} file caricati con successo!")
-
-# Casella di testo per la domanda dell'utente
-user_query = st.chat_input("Fai una domanda all'assistente sui dati caricati...")
+# Casella di input per la domanda dell'utente
+user_query = st.chat_input("Fai una domanda sui file caricati...")
 
 if user_query:
     if not uploaded_files:
@@ -40,27 +45,25 @@ if user_query:
         with st.chat_message("user"):
             st.markdown(user_query)
 
-       # Generiamo la risposta dell'IA
-with st.chat_message("assistant"):
-    with st.spinner("L'assistente sta analizzando i documenti..."):
-        try:
-            file_names = ", ".join([f.name for f in uploaded_files])
-            
-            # Chiamata pulita al client Groq
-            chat_completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[
-                    {
-                        "role": "user", 
-                        "content": f"L'utente ha caricato questi file: {file_names}. Domanda: {user_query}"
-                    }
-                ]
-            )
-            
-            bot_reply = chat_completion.choices[0].message.content
-            st.markdown(bot_reply)
-            st.session_state.messages.append({"role": "assistant", "content": bot_reply})
-            
-        except Exception as e:
-            # Questo stamperà l'errore completo e dettagliato per capire la causa esatta
-            st.error(f"Errore tecnico dettagliato: {e}")
+        # Generiamo la risposta dell'IA con ChatGPT
+        with st.chat_message("assistant"):
+            with st.spinner("L'assistente sta analizzando i documenti..."):
+                try:
+                    file_names_str = ", ".join([f.name for f in uploaded_files])
+                    
+                    chat_completion = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {
+                                "role": "user", 
+                                "content": f"L'utente ha caricato questi file: {file_names_str}. Domanda: {user_query}"
+                            }
+                        ]
+                    )
+                    
+                    bot_reply = chat_completion.choices[0].message.content
+                    st.markdown(bot_reply)
+                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+                    
+                except Exception as e:
+                    st.error(f"Errore tecnico dettagliato: {e}")
