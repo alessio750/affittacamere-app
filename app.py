@@ -67,4 +67,4 @@ if st.button("Analizza con l'IA"):
             except Exception as e:
                 st.error(f"Si è verificato un errore durante l'analisi: {e}")
     else:
-        st.warning("Scrivi prima una domanda per l'assistente."
+        st.warning("Scrivi prima una domanda per l'assistente.")
