@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 
 # Configurazione della pagina
-st.set_page_config(page_title="Assistente Fatture IA", page_icon="📄", layout="centered")
+st.set_page_config(page_title="Assistente virtuale affittacamere IA", page_icon="🏡​", layout="centered")
 
 st.title("📄 Assistente Analisi Fatture")
 st.write("Carica le tue fatture o i file degli incassi e chiedi qualsiasi cosa all'IA.")
