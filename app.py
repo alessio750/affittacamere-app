@@ -54,26 +54,23 @@ if user_query:
             with st.spinner("L'assistente sta analizzando i documenti..."):
                 try:
                     # Inizializziamo il modello
-                    model = genai.GenerativeModel('models/gemini-3.6-flash')
-                    
-                    # Prepariamo la lista dei file da inviare all'IA
-                    file_parts = []
-                    for uploaded_file in uploaded_files:
-                        bytes_data = uploaded_file.getvalue()
-                        file_parts.append({
-                            "mime_type": uploaded_file.type,
-                            "data": bytes_data
-                        })
-                    
-                    # Uniamo i file e la domanda in un'unica richiesta
-                    prompt_content = [user_query] + file_parts
-                    
-                    # Inviamo tutto all'IA
-                    response = model.generate_content(prompt_content)
-                    bot_reply = response.text
-                    
-                    # Mostriamo la risposta
-                    st.markdown(bot_reply)
+                   # Prepariamo un testo con i nomi dei file caricati da mandare a Groq
+    file_names = ", ".join([f.name for f in uploaded_files])
+    
+    # Chiediamo la risposta a Groq usando il modello llama-3.3-70b-versatile
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": f"L'utente ha caricato questi file: {file_names}. Domanda dell'utente: {user_query}",
+            }
+        ]
+        model="llama-3.3-70b-versatile",
+    )
+    bot_reply = chat_completion.choices[0].message.content
+
+    # Mostriamo la risposta
+    st.markdown(bot_reply)
                     
                     # Salviamo anche la risposta dell'assistente nella cronologia
                     st.session_state.messages.append({"role": "assistant", "content": bot_reply})
